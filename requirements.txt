@@ -1,0 +1,7 @@
+playwright
+pytest
+bandit
+safety
+flake8
+pylint
+pytest-playwright
