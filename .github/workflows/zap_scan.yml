@@ -1,39 +1,34 @@
-name: ZAP Baseline Scan
+name: ZAP Baseline Manual Scan
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - master
 
 jobs:
-  zap-baseline-scan:
+  zap-scan:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Run ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.10.0
-        with:
-          target: 'https://www.demo.testfire.net'
-          cmd_options: >
-            -a
-            -J zap_report.json
-            -w zap_report.md
-            -r zap_report.html
-          fail_action: false
-          allow_issue_writing: false
-          artifact_name: zap_scan
-
-      - name: Move ZAP Reports
+      - name: Run ZAP Baseline Scan Manually via Docker
         run: |
-          mkdir -p zap-reports
-          mv zap_report.* zap-reports/
+          docker pull owasp/zap2docker-stable
+          docker run \
+            --rm \
+            -v $(pwd):/zap/wrk \
+            owasp/zap2docker-stable zap-baseline.py \
+            -t https://www.demo.testfire.net \
+            -a \
+            -J zap_report.json \
+            -w zap_report.md \
+            -r zap_report.html
 
       - name: Upload ZAP Reports
         uses: actions/upload-artifact@v4
         with:
-          name: ZAP Scan Reports
-          path: zap-reports
+          name: ZAP Reports
+          path: |
+            zap_report.html
+            zap_report.md
+            zap_report.json
