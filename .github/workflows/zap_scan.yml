@@ -1,25 +1,25 @@
 name: OWASP ZAP Baseline Scan
 
 on:
-  workflow_dispatch:  # ✅ Manually trigger the workflow from GitHub UI
+  workflow_dispatch:
 
 jobs:
   zap_scan:
     name: Run ZAP Baseline Scan
-    runs-on: ubuntu-latest  # ✅ Use GitHub-hosted Linux runner
+    runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v3  # ✅ Fetch your repository code
+      - name: Checkout code
+        uses: actions/checkout@v3
 
       - name: Run OWASP ZAP Baseline Scan
-        uses: zaproxy/action-baseline@v0.10.0  # ✅ Latest version with GHCR image
+        uses: zaproxy/action-baseline@v0.10.0
         with:
-          target: 'https://demo.testfire.net'  # ✅ The app to scan
+          target: 'https://demo.testfire.net'
           cmd_options: >
-            -t 60 
-            -J zap_scanning_reports/zap_report.json 
-            -r zap_scanning_reports/zap_report.html 
+            -t 60
+            -J zap_scanning_reports/zap_report.json
+            -r zap_scanning_reports/zap_report.html
             -w zap_scanning_reports/zap_report.md
 
       - name: Upload ZAP HTML Report
