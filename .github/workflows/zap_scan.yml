@@ -5,17 +5,17 @@ on:
 
 jobs:
   zap_scan:
-    name: Run ZAP Baseline Scan
     runs-on: ubuntu-latest
+    name: Run ZAP Scan
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Code
         uses: actions/checkout@v3
 
       - name: Run ZAP Baseline Scan
         uses: zaproxy/action-baseline@v0.10.0
         with:
-          target: 'https://demo.testfire.net'
+          target: 'https://www.demo.testfire.net'
           cmd_options: >
             -t 60
             -J zap_scanning_reports/zap_report.json
