@@ -1,8 +1,6 @@
 name: ZAP Baseline Scan
 
 on:
-  push:
-    branches: [master]
   workflow_dispatch:
 
 jobs:
@@ -13,8 +11,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up Git
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+
       - name: Create reports directory
         run: mkdir -p zap_reports
+
+      - name: Set current timestamp
+        run: echo "ZAP_TIMESTAMP=$(date +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_ENV
 
       - name: Run ZAP Baseline Scan
         run: |
@@ -25,24 +31,14 @@ jobs:
             -c "python3 /zap/zap-baseline.py \
                 -t https://www.github.com \
                 -a \
-                -J zap_report.json \
-                -w zap_report.md \
-                -r zap_report.html || true"
+                -J zap_report_${{ env.ZAP_TIMESTAMP }}.json \
+                -w zap_report_${{ env.ZAP_TIMESTAMP }}.md \
+                -r zap_report_${{ env.ZAP_TIMESTAMP }}.html || true"
 
-      - name: Upload ZAP Report HTML
-        uses: actions/upload-artifact@v4
-        with:
-          name: zap-report-html
-          path: zap_reports/zap_report.html
-
-      - name: Upload ZAP Report JSON
-        uses: actions/upload-artifact@v4
-        with:
-          name: zap-report-json
-          path: zap_reports/zap_report.json
-
-      - name: Upload ZAP Report Markdown
-        uses: actions/upload-artifact@v4
-        with:
-          name: zap-report-md
-          path: zap_reports/zap_report.md
+      - name: Commit and Push Reports to Repo
+        run: |
+          git add zap_reports/
+          git commit -m "Add ZAP report ${{ env.ZAP_TIMESTAMP }}"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
