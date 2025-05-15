@@ -18,7 +18,7 @@ jobs:
             --rm \
             -v $(pwd):/zap/wrk \
             ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
-            -t https://www.demo.testfire.net \
+            -t https://www.github.com \
             -a \
             -J zap_report.json \
             -w zap_report.md \
