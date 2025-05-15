@@ -1,0 +1,31 @@
+name: OWASP ZAP Baseline Scan
+
+on:
+  workflow_dispatch:  # ✅ Allows you to run this action manually from GitHub UI
+
+jobs:
+  zap_scan:
+    name: Run ZAP Baseline Scan
+    runs-on: ubuntu-latest  # ✅ Uses a fresh Ubuntu VM on GitHub's servers
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3  # ✅ Checks out your repo into the runner
+
+    - name: Create output directory if not exists
+      run: mkdir -p zap_scanning_reports  # ✅ Ensures the 'static_testing' folder exists
+
+    - name: Run OWASP ZAP Baseline Scan
+      uses: zaproxy/action-baseline@v0.7.0  # ✅ Official ZAP scan action
+      with:
+        target: 'https://demo.testfire.net/'  # ✅ The website to scan
+        cmd_options: >
+          -t 60                           # ⏱ Scan timeout of 60 seconds
+          -J zap_scanning_reports/zap_report.json  # 📄 Save JSON report in zap_scanning_reports/
+          -r zap_scanning_reports/zap_report.html  # 📄 Save HTML report in zap_scanning_reports/
+
+    - name: Upload ZAP Report as artifact
+      uses: actions/upload-artifact@v4  # ✅ Uploads report to GitHub Actions UI
+      with:
+        name: ZAP Security Report
+        path: zap_scanning_reports/zap_report.html  # ✅ Path of report to upload
