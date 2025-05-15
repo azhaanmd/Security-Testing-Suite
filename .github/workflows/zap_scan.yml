@@ -20,13 +20,14 @@ jobs:
         run: |
           docker run --rm \
             -v ${{ github.workspace }}/zap_reports:/zap/wrk \
-            owasp/zap2docker-stable zap-baseline.py \
+            ghcr.io/zaproxy/zaproxy:stable \
+            zap-baseline.py \
             -t https://www.github.com \
             -a \
             -J zap_report.json \
             -w zap_report.md \
             -r zap_report.html \
-            || true  # allow non-zero exit (alerts)
+            || true  # allow ZAP alerts to not fail the pipeline
 
       - name: Upload ZAP Report HTML
         uses: actions/upload-artifact@v4
