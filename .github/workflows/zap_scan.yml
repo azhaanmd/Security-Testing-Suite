@@ -16,7 +16,7 @@ jobs:
       run: mkdir -p zap_scanning_reports  # ✅ Ensures the 'static_testing' folder exists
 
     - name: Run OWASP ZAP Baseline Scan
-      uses: zaproxy/action-baseline@v0.7.0  # ✅ Official ZAP scan action
+      uses: zaproxy/action-baseline@v0.10.0  # ✅ Official ZAP scan action
       with:
         target: 'https://demo.testfire.net/'  # ✅ The website to scan
         cmd_options: >
