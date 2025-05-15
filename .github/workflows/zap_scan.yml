@@ -1,15 +1,17 @@
-name: OWASP ZAP Baseline Scan
+name: ZAP Baseline Scan
 
 on:
+  push:
+    branches:
+      - master
   workflow_dispatch:
 
 jobs:
-  zap_scan:
+  zap-baseline:
     runs-on: ubuntu-latest
-    name: Run ZAP Scan
 
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Run ZAP Baseline Scan
@@ -17,24 +19,31 @@ jobs:
         with:
           target: 'https://www.demo.testfire.net'
           cmd_options: >
-            -t 60
-            -J zap_scanning_reports/zap_report.json
-            -r zap_scanning_reports/zap_report.html
-            -w zap_scanning_reports/zap_report.md
+            -a
+            -J zap_report.json
+            -w zap_report.md
+            -r zap_report.html
 
-      - name: Upload ZAP HTML Report
+      - name: Create reports directory
+        run: mkdir -p zap_scanning_reports
+
+      - name: Move reports
+        run: |
+          mv zap_report.* zap_scanning_reports/
+
+      - name: Upload HTML Report
         uses: actions/upload-artifact@v4
         with:
           name: ZAP HTML Report
           path: zap_scanning_reports/zap_report.html
 
-      - name: Upload ZAP JSON Report
+      - name: Upload JSON Report
         uses: actions/upload-artifact@v4
         with:
           name: ZAP JSON Report
           path: zap_scanning_reports/zap_report.json
 
-      - name: Upload ZAP Markdown Report
+      - name: Upload Markdown Report
         uses: actions/upload-artifact@v4
         with:
           name: ZAP Markdown Report
