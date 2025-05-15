@@ -19,15 +19,15 @@ jobs:
       - name: Run ZAP Baseline Scan
         run: |
           docker run --rm \
+            --entrypoint /bin/bash \
             -v ${{ github.workspace }}/zap_reports:/zap/wrk \
             ghcr.io/zaproxy/zaproxy:stable \
-            zap-baseline.py \
-            -t https://www.github.com \
-            -a \
-            -J zap_report.json \
-            -w zap_report.md \
-            -r zap_report.html \
-            || true  # allow ZAP alerts to not fail the pipeline
+            -c "python3 /zap/zap-baseline.py \
+                -t https://www.github.com \
+                -a \
+                -J zap_report.json \
+                -w zap_report.md \
+                -r zap_report.html || true"
 
       - name: Upload ZAP Report HTML
         uses: actions/upload-artifact@v4
