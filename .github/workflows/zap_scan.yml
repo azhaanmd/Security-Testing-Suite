@@ -24,14 +24,14 @@ jobs:
 
       - name: Run ZAP Baseline Scan
         run: |
-          docker run --rm \
-            -v ${{ github.workspace }}/zap_reports:/zap/wrk \
-            owasp/zap2docker-stable zap-baseline.py \
-            -t https://www.github.com \
-            -a \
-            -J zap_report_${{ env.ZAP_TIMESTAMP }}.json \
-            -w zap_report_${{ env.ZAP_TIMESTAMP }}.md \
-            -r zap_report_${{ env.ZAP_TIMESTAMP }}.html || true
+              docker run --rm \
+              -v ${{ github.workspace }}/zap_reports:/zap/wrk \
+              ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
+              -t https://www.github.com \
+              -a \
+              -J zap_report_${{ env.ZAP_TIMESTAMP }}.json \
+              -w zap_report_${{ env.ZAP_TIMESTAMP }}.md \
+              -r zap_report_${{ env.ZAP_TIMESTAMP }}.html || true
 
       - name: Commit and push ZAP reports to repo
         run: |
