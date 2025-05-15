@@ -11,16 +11,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Git
-        run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
+      - name: Set timestamp env variable
+        run: echo "ZAP_TIMESTAMP=$(date +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_ENV
 
       - name: Create reports directory
         run: mkdir -p zap_reports
-
-      - name: Set timestamp for report
-        run: echo "ZAP_TIMESTAMP=$(date +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_ENV
 
       - name: Run ZAP Baseline Scan
         run: |
@@ -29,12 +24,14 @@ jobs:
             ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
             -t http://testphp.vulnweb.com \
             -a \
-            -J zap_report.json \
-            -w zap_report.md \
-            -r zap_report.html
+            -J /zap/wrk/zap_report_${{ env.ZAP_TIMESTAMP }}.json \
+            -w /zap/wrk/zap_report_${{ env.ZAP_TIMESTAMP }}.md \
+            -r /zap/wrk/zap_report_${{ env.ZAP_TIMESTAMP }}.html
 
-      - name: Commit and push ZAP reports to repo
+      - name: Commit ZAP Report to Repository
         run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add zap_reports/
           git commit -m "Add ZAP report ${{ env.ZAP_TIMESTAMP }}" || echo "No changes to commit"
           git push
