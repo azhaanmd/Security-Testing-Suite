@@ -1,31 +1,41 @@
 name: OWASP ZAP Baseline Scan
 
 on:
-  workflow_dispatch:  # ✅ Allows you to run this action manually from GitHub UI
+  workflow_dispatch:  # ✅ Manually trigger the workflow from GitHub UI
 
 jobs:
   zap_scan:
     name: Run ZAP Baseline Scan
-    runs-on: ubuntu-latest  # ✅ Uses a fresh Ubuntu VM on GitHub's servers
+    runs-on: ubuntu-latest  # ✅ Use GitHub-hosted Linux runner
 
     steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3  # ✅ Checks out your repo into the runner
+      - name: Checkout repo
+        uses: actions/checkout@v3  # ✅ Fetch your repository code
 
-    - name: Create output directory if not exists
-      run: mkdir -p zap_scanning_reports  # ✅ Ensures the 'static_testing' folder exists
+      - name: Run OWASP ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.10.0  # ✅ Latest version with GHCR image
+        with:
+          target: 'https://demo.testfire.net'  # ✅ The app to scan
+          cmd_options: >
+            -t 60 
+            -J zap_scanning_reports/zap_report.json 
+            -r zap_scanning_reports/zap_report.html 
+            -w zap_scanning_reports/zap_report.md
 
-    - name: Run OWASP ZAP Baseline Scan
-      uses: zaproxy/action-baseline@v0.10.0  # ✅ Official ZAP scan action
-      with:
-        target: 'https://demo.testfire.net/'  # ✅ The website to scan
-        cmd_options: >
-          -t 60                           # ⏱ Scan timeout of 60 seconds
-          -J zap_scanning_reports/zap_report.json  # 📄 Save JSON report in zap_scanning_reports/
-          -r zap_scanning_reports/zap_report.html  # 📄 Save HTML report in zap_scanning_reports/
+      - name: Upload ZAP HTML Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZAP HTML Report
+          path: zap_scanning_reports/zap_report.html
 
-    - name: Upload ZAP Report as artifact
-      uses: actions/upload-artifact@v4  # ✅ Uploads report to GitHub Actions UI
-      with:
-        name: ZAP Security Report
-        path: zap_scanning_reports/zap_report.html  # ✅ Path of report to upload
+      - name: Upload ZAP JSON Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZAP JSON Report
+          path: zap_scanning_reports/zap_report.json
+
+      - name: Upload ZAP Markdown Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: ZAP Markdown Report
+          path: zap_scanning_reports/zap_report.md
