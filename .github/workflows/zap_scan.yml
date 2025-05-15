@@ -19,26 +19,24 @@ jobs:
       - name: Create reports directory
         run: mkdir -p zap_reports
 
-      - name: Set current timestamp
+      - name: Set timestamp for report
         run: echo "ZAP_TIMESTAMP=$(date +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_ENV
 
       - name: Run ZAP Baseline Scan
         run: |
           docker run --rm \
-            --entrypoint /bin/bash \
             -v ${{ github.workspace }}/zap_reports:/zap/wrk \
-            ghcr.io/zaproxy/zaproxy:stable \
-            -c "python3 /zap/zap-baseline.py \
-                -t https://www.github.com \
-                -a \
-                -J zap_report_${{ env.ZAP_TIMESTAMP }}.json \
-                -w zap_report_${{ env.ZAP_TIMESTAMP }}.md \
-                -r zap_report_${{ env.ZAP_TIMESTAMP }}.html || true"
+            owasp/zap2docker-stable zap-baseline.py \
+            -t https://www.github.com \
+            -a \
+            -J zap_report_${{ env.ZAP_TIMESTAMP }}.json \
+            -w zap_report_${{ env.ZAP_TIMESTAMP }}.md \
+            -r zap_report_${{ env.ZAP_TIMESTAMP }}.html || true
 
-      - name: Commit and Push Reports to Repo
+      - name: Commit and push ZAP reports to repo
         run: |
           git add zap_reports/
-          git commit -m "Add ZAP report ${{ env.ZAP_TIMESTAMP }}"
+          git commit -m "Add ZAP report ${{ env.ZAP_TIMESTAMP }}" || echo "No changes to commit"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
