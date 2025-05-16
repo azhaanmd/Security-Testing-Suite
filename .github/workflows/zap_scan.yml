@@ -1,4 +1,4 @@
-name: ZAP Baseline Scan Fixed
+name: OWASP ZAP Scan
 
 on:
   workflow_dispatch:
@@ -7,36 +7,43 @@ jobs:
   zap_scan:
     runs-on: ubuntu-latest
     env:
-      ZAP_TIMESTAMP: ${{ github.run_id }}
+      ZAP_TIMESTAMP: ${{ github.run_id }}  # ensures unique report name
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-      - name: Set up Git user
-        run: |
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Create reports directory
+      - name: Create report directory
         run: mkdir -p zap_reports
 
-      - name: Run ZAP Baseline Scan
+      - name: Run OWASP ZAP Baseline Scan in Docker
         run: |
           docker run --rm \
+            -u root \
             -v ${{ github.workspace }}/zap_reports:/zap/wrk \
-            ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
+            ghcr.io/zaproxy/zaproxy:stable \
+            zap-baseline.py \
             -t http://testphp.vulnweb.com \
             -a \
-            -J zap_report_${{ env.ZAP_TIMESTAMP }}.json \
-            -w zap_report_${{ env.ZAP_TIMESTAMP }}.md \
-            -r zap_report_${{ env.ZAP_TIMESTAMP }}.html \
-            || true
+            -J zap_report_${ZAP_TIMESTAMP}.json \
+            -w zap_report_${ZAP_TIMESTAMP}.md \
+            -r zap_report_${ZAP_TIMESTAMP}.html \
+            || true  # allow non-zero exit so job doesn't fail on warnings
 
-      - name: Commit and push ZAP reports
-        run: |
-          git add zap_reports/
-          git commit -m "Add ZAP report ${{ env.ZAP_TIMESTAMP }}" || echo "No changes to commit"
-          git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+      - name: Upload ZAP HTML Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: ZAP-HTML-Report
+          path: zap_reports/zap_report_${{ env.ZAP_TIMESTAMP }}.html
+
+      - name: Upload ZAP JSON Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: ZAP-JSON-Report
+          path: zap_reports/zap_report_${{ env.ZAP_TIMESTAMP }}.json
+
+      - name: Upload ZAP Markdown Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: ZAP-MD-Report
+          path: zap_reports/zap_report_${{ env.ZAP_TIMESTAMP }}.md
