@@ -1,7 +1,6 @@
 name: OWASP ZAP Scan
 
 on:
-  push:
   workflow_dispatch:
 
 jobs:
