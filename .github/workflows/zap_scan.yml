@@ -1,4 +1,4 @@
-name: ZAP Baseline Scan
+name: ZAP Baseline Scan Fixed
 
 on:
   workflow_dispatch:
@@ -6,13 +6,17 @@ on:
 jobs:
   zap_scan:
     runs-on: ubuntu-latest
+    env:
+      ZAP_TIMESTAMP: ${{ github.run_id }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set timestamp env variable
-        run: echo "ZAP_TIMESTAMP=$(date +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_ENV
+      - name: Set up Git user
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Create reports directory
         run: mkdir -p zap_reports
@@ -24,16 +28,15 @@ jobs:
             ghcr.io/zaproxy/zaproxy:stable zap-baseline.py \
             -t http://testphp.vulnweb.com \
             -a \
-            -J /zap/wrk/zap_report_${{ env.ZAP_TIMESTAMP }}.json \
-            -w /zap/wrk/zap_report_${{ env.ZAP_TIMESTAMP }}.md \
-            -r /zap/wrk/zap_report_${{ env.ZAP_TIMESTAMP }}.html
+            -J zap_report_${{ env.ZAP_TIMESTAMP }}.json \
+            -w zap_report_${{ env.ZAP_TIMESTAMP }}.md \
+            -r zap_report_${{ env.ZAP_TIMESTAMP }}.html \
+            || true
 
-      - name: Commit ZAP Report to Repository
+      - name: Commit and push ZAP reports
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add zap_reports/
           git commit -m "Add ZAP report ${{ env.ZAP_TIMESTAMP }}" || echo "No changes to commit"
           git push
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
