@@ -58,6 +58,7 @@ Security-Testing-Suite/
 ├── requirements.txt             # Python dependencies
 ├── README.md                    # Project documentation
 └── .gitignore
+```
 
 🔄 **CI/CD Workflow Summary**
 The entire OWASP ZAP scan process is automated using GitHub Actions:
