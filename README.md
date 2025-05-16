@@ -77,16 +77,12 @@ The entire OWASP ZAP scan process is automated using GitHub Actions:
 Go to the zap_reports/ folder and open any .html file directly in your browser for a full interactive scan report.
 
 **🧪 Security Tests Included**
-- The security_tests/ folder includes lightweight, security-focused Python tests that simulate how a QA might manually or programmatically validate app security:
+The security_tests/ folder includes lightweight, security-focused Python tests that simulate how a QA might manually or programmatically validate app security:
 
 - Headers Testing: Checks for secure headers like Content-Security-Policy, Strict-Transport-Security, etc.
-
 - Cookies Testing: Ensures HttpOnly, Secure, and SameSite attributes are set.
-
 - XSS Testing: Tries to inject <script> and verifies output reflection.
-
 - SQL Injection: Attempts vulnerable payloads and checks response behavior.
-
 - Blind SQLi: Uses time-based queries to infer vulnerabilities without visible error messages.
 
 ⚔️ **Dynamic Security Testing with OWASP ZAP**
@@ -102,8 +98,7 @@ And much more...
 
 🌍 **Target Site for ZAP Scan**
 This project uses the intentionally vulnerable site http://testphp.vulnweb.com provided by Acunetix for educational testing purposes.
-
-🔧 You can customize the scan to target your own application or local test server by modifying the URL in zap_scan.yml.
+🔧 _**You can customize the scan to target your own application or local test server by modifying the URL in zap_scan.yml.**_
 
 🎯 **How to Use This Repo**
 🧪 Manual Testing
