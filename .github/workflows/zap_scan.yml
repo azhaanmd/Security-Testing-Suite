@@ -1,22 +1,28 @@
 name: OWASP ZAP Scan
 
 on:
+  push:
   workflow_dispatch:
 
 jobs:
   zap_scan:
     runs-on: ubuntu-latest
     env:
-      ZAP_TIMESTAMP: ${{ github.run_id }}  # ensures unique report name
+      ZAP_TIMESTAMP: ${{ github.run_id }}
 
     steps:
-      - name: Checkout code
+      - name: Checkout repo
         uses: actions/checkout@v3
 
-      - name: Create report directory
+      - name: Set up Git config
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create zap_reports directory
         run: mkdir -p zap_reports
 
-      - name: Run OWASP ZAP Baseline Scan in Docker
+      - name: Run OWASP ZAP baseline scan and save reports
         run: |
           docker run --rm \
             -u root \
@@ -28,22 +34,14 @@ jobs:
             -J zap_report_${ZAP_TIMESTAMP}.json \
             -w zap_report_${ZAP_TIMESTAMP}.md \
             -r zap_report_${ZAP_TIMESTAMP}.html \
-            || true  # allow non-zero exit so job doesn't fail on warnings
+            || true
 
-      - name: Upload ZAP HTML Report
-        uses: actions/upload-artifact@v3
-        with:
-          name: ZAP-HTML-Report
-          path: zap_reports/zap_report_${{ env.ZAP_TIMESTAMP }}.html
-
-      - name: Upload ZAP JSON Report
-        uses: actions/upload-artifact@v3
-        with:
-          name: ZAP-JSON-Report
-          path: zap_reports/zap_report_${{ env.ZAP_TIMESTAMP }}.json
-
-      - name: Upload ZAP Markdown Report
-        uses: actions/upload-artifact@v3
-        with:
-          name: ZAP-MD-Report
-          path: zap_reports/zap_report_${{ env.ZAP_TIMESTAMP }}.md
+      - name: Commit ZAP reports to repo
+        run: |
+          git add zap_reports/
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "Add ZAP scan reports (Run ID: $ZAP_TIMESTAMP)"
+            git push origin master
+          fi
