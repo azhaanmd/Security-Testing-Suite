@@ -27,21 +27,21 @@ jobs:
 - parameters:
     reportDescription: ''
     reportDir: /zap/wrk/
-    reportFile: zap_report_15060485860.html
+    reportFile: zap_report_15061014850.html
     reportTitle: ZAP Scanning Report
     template: traditional-html
   type: report
 - parameters:
     reportDescription: ''
     reportDir: /zap/wrk/
-    reportFile: zap_report_15060485860.md
+    reportFile: zap_report_15061014850.md
     reportTitle: ZAP Scanning Report
     template: traditional-md
   type: report
 - parameters:
     reportDescription: ''
     reportDir: /zap/wrk/
-    reportFile: zap_report_15060485860.json
+    reportFile: zap_report_15061014850.json
     reportTitle: ZAP Scanning Report
     template: traditional-json
   type: report
